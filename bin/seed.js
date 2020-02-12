@@ -2,14 +2,16 @@ const mongoose = require('mongoose')
 const Coaster = require('../models/coaster.model')
 const Park = require('../models/park.model')
 
-const dbtitle = 'repaso-crud'
-mongoose.connect(`mongodb://localhost/${dbtitle}`, { useUnifiedTopology: true, useNewUrlParser: true })
+const dbtitle = 'crud-exercise'
+mongoose.connect(`mongodb://localhost/${dbtitle}`, {
+    useUnifiedTopology: true,
+    useNewUrlParser: true
+})
 
 Coaster.collection.drop()
 Park.collection.drop()
 
-const coasters = [
-    {
+const coasters = [{
         name: "Shambala, aventura en el Himalaya",
         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
         length: 1728,
@@ -120,7 +122,11 @@ const coasters = [
 ]
 
 Promise.all(coasters.map(coaster => Park.create(coaster.park).then(park => park.name)))
-    .then(() => coasters.map(coaster => Park.findOne({ name: coaster.park.name }).then(park => Object.assign({}, coaster, { park: park._id }))))
+    .then(() => coasters.map(coaster => Park.findOne({
+        name: coaster.park.name
+    }).then(park => Object.assign({}, coaster, {
+        park: park._id
+    }))))
     .then(findParks => Promise.all(findParks).then(coasters => coasters.map(coaster => Coaster.create(coaster))))
     .then(savedCoasters => Promise.all(savedCoasters).then(coasters => coasters.forEach(coaster => console.log(`Montaña rusa ${coaster.name} creada`))).then(() => mongoose.connection.close()))
     .catch(error => console.log('Error: ', error))
